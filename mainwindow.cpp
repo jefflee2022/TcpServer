@@ -1,7 +1,12 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include <QThread>
+#include <QString>
 #include <QDebug>
+// for VISA(SCPI) IDN? return msg
+const QString model = "FSH-8";
+const QString version = "0.1";
+
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -9,6 +14,19 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
+
+}
+
+MainWindow::~MainWindow()
+{
+    delete ui;
+}
+bool isDeviceBIRD()
+{
+    return true;
+}
+void MainWindow::openSocket()
+{
     server = new QTcpServer(this);
     connect(server, SIGNAL(newConnection()), this, SLOT(new_tcp_connection()));
     if(!server->listen(QHostAddress::Any, default_port))
@@ -20,12 +38,6 @@ MainWindow::MainWindow(QWidget *parent) :
         qDebug() << "Server started!";
     }
 }
-
-MainWindow::~MainWindow()
-{
-    delete ui;
-}
-
 void MainWindow::closeSocket()
 {
     for (QTcpSocket* socket : findChildren<QTcpSocket*>()) {
@@ -66,10 +78,66 @@ void MainWindow::read_data_from_socket()
         {
 
             QThread::msleep(100);
-            socket->write("Envox,EEZ H24005 (Simulator),0000000,v1.1\n");   // or write something back based on the received msg
+
+            if ( isDeviceBIRD() )
+            {
+                socket->write("BIRD,7022 (Simulator),,v1\n");   // or write something back based on the received msg
+            }else
+            {
+                socket->write("R&S,FSH-8 (Simulator),,v1\n");
+            }
             socket->flush();
             socket->waitForBytesWritten(50);
         }
+
+        if ( isDeviceBIRD() )
+        {
+            if ( data.contains("CLS") )
+            {
+
+                QThread::msleep(10);
+                socket->write("OK for CLS(clear screen) ");
+                socket->flush();
+                socket->waitForBytesWritten(50);
+            }
+
+            if ( data.contains("RST"))
+            {
+
+                QThread::msleep(10);
+                socket->write("OK for RST(reset) ");
+                socket->flush();
+                socket->waitForBytesWritten(50);
+
+            }
+
+            if ( data.contains(":TRAC:APOW?"))
+            {
+                QString result;
+                result = result.append("reading:Measurement.ForwardAveragePower");
+                result = result.append(",value:25.5"); // Forward Average Power
+
+              //  result = result.append("reading:Measurement.reflectedAveragePower");
+              //  result = result.append(",value:25.5");
+                QString timeStamp;
+                result = result.append("reading:Measurement.Match");
+                result = result.append(",value:0"); // Forward Average Power
+                result = result.append(":timestamp:23123123123");
+
+
+                socket->write(result.toStdString().c_str());
+                socket->flush();
+                socket->waitForBytesWritten(50);
+                qDebug(" ");
+            }
+
+
+        }
+        else {
+
+        }
+
+
        // socket->close();    // closing the socket manually to avoid memory leaks
 
         handle_tcp_command(str_data);   // pass the msg
@@ -93,4 +161,9 @@ void MainWindow::handle_tcp_command(string cmd)
 void MainWindow::on_pushButton_2_clicked()
 {
     closeSocket();
+}
+
+void MainWindow::on_pushButton_clicked()
+{
+    openSocket();
 }

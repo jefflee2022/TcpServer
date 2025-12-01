@@ -28,7 +28,7 @@ private:
     QTcpServer *server;
     QTcpSocket *socket;
 
-
+    void openSocket();
     void closeSocket();
 
 private slots: // related to the TCP server
@@ -37,6 +37,8 @@ void read_data_from_socket();
 void handle_tcp_command(string cmd);
 
 void on_pushButton_2_clicked();
+
+void on_pushButton_clicked();
 
 private:
     Ui::MainWindow *ui;
