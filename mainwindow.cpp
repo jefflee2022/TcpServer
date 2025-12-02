@@ -7,6 +7,8 @@
 const QString model = "FSH-8";
 const QString version = "0.1";
 
+// Setting SCPI commands table
+// https://selected-mule-probable.ngrok-free.app/mil_prj/adj_ss/-/issues/8
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -23,7 +25,16 @@ MainWindow::~MainWindow()
 }
 bool isDeviceBIRD()
 {
-    return true;
+    //return true;
+    return false;
+}
+void MainWindow::sendRetValue()
+{
+    QThread::msleep(10);
+    socket->write("0");
+    socket->flush();
+    socket->waitForBytesWritten(50);
+
 }
 void MainWindow::openSocket()
 {
@@ -132,8 +143,35 @@ void MainWindow::read_data_from_socket()
             }
 
 
+        } else if ( false == isDeviceBIRD() )
+        {
+            /*
+            REMOTE
+            ----------
+            cmd
+            0
+            remote
+            0
+            */
+
+            if ( data.contains("REMOTE"))
+            {
+                sendRetValue();
+            }else if ( data.contains("LOCAL"))
+            {
+                sendRetValue();
+            }else if ( data.contains("PRESET"))
+            {
+                sendRetValue();
+            }else if ( data.contains("INIT"))
+            {
+                sendRetValue();
+            }
+
+
         }
         else {
+            qDebug("Error : isDeviceBIRD is abnormal status");
 
         }
 

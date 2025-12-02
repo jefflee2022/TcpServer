@@ -38,6 +38,7 @@ void handle_tcp_command(string cmd);
 
 void on_pushButton_2_clicked();
 
+void sendRetValue();
 void on_pushButton_clicked();
 
 private:
