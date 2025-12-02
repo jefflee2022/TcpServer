@@ -7,6 +7,15 @@
 const QString model = "FSH-8";
 const QString version = "0.1";
 
+// set command without general commands
+QStringList generalSetCmds = { "REMOTE", "LOCAL", "PRESET","INIT" };
+QStringList freqSpanSetCmds = {"FREQ","FREQOFFS","SPAN","AUTOSPAN","CHANNEL","CHTABLE"};
+QStringList amplitudeSetCmds = {"REFLVL","REFLVLOFFS","RANGE","DYNRANGE","UNIT","RFINPUT","PREAMP" };
+QStringList bandwidthSetCmds = {"AUTORBW","RBW","AUTOVBW","VBW","AUTOCISPRBW","CISPRBW"};
+QStringList sweepSetCmds = {"AUTOSWPTIME","SWPTIME","SWPCONT","TRIGSRC","TRIGLVL","TRIGDEL" };
+QStringList traceSetCmds = {"TRACEMODE","TRACEDET","TRACEMODE","TRACE","TRACEBIN","CTRACE","CTRACEBIN","MTRACE","MTRACEBIN"};
+QStringList markerSetCmds = {"MARK1ON","MARK1","DELTA1ON","DELTA1","MARKPK","MARKNXTPK","MARKMIN","MARKTOCENT","MARKTOLVL","MARKMODE"};
+
 // Setting SCPI commands table
 // https://selected-mule-probable.ngrok-free.app/mil_prj/adj_ss/-/issues/8
 
@@ -28,6 +37,16 @@ bool isDeviceBIRD()
     //return true;
     return false;
 }
+
+bool containsAny(const QByteArray &data, const QStringList &list)
+{
+    for (const QString &s : list) {
+        if (data.contains(s.toUtf8()))
+            return true;
+    }
+    return false;
+}
+
 void MainWindow::sendRetValue()
 {
     QThread::msleep(10);
@@ -145,6 +164,8 @@ void MainWindow::read_data_from_socket()
 
         } else if ( false == isDeviceBIRD() )
         {
+              // ==== 설정 명령어 ==== //
+            // FSH-8 : General SCPI commands case
             /*
             REMOTE
             ----------
@@ -153,7 +174,7 @@ void MainWindow::read_data_from_socket()
             remote
             0
             */
-
+#if 0
             if ( data.contains("REMOTE"))
             {
                 sendRetValue();
@@ -167,6 +188,62 @@ void MainWindow::read_data_from_socket()
             {
                 sendRetValue();
             }
+#else
+            if ( containsAny(data,generalSetCmds))
+            {
+                sendRetValue();
+            }
+
+            if ( containsAny(data,freqSpanSetCmds))
+            {
+                sendRetValue();
+            }
+
+            if ( containsAny(data,amplitudeSetCmds))
+            {
+                sendRetValue();
+            }
+
+            if ( containsAny(data,bandwidthSetCmds))
+            {
+                sendRetValue();
+            }
+
+            if ( containsAny(data,sweepSetCmds))
+            {
+                sendRetValue();
+            }
+
+            if ( containsAny(data,traceSetCmds))
+            {
+                sendRetValue();
+            }
+
+            if ( containsAny(data,markerSetCmds))
+            {
+                sendRetValue();
+            }
+
+#endif
+            // FSH-8 : Frequency and Span Settings
+            // FSH-8 : Amplitude Settings
+            // FSH-8 : Bandwidth Settings
+            // FSH-8 : Sweep Settings
+            // FSH-8 : Trace Settings
+
+               // ==== 측정 명령어 ==== //
+            // FSH-8 : Measurement
+            // FSH-8 : Tracking Generator
+            // FSH-8 : Power Sensor
+            // FSH-8 : Channel Power
+            // FSH-8 : Occupied Bandwidth
+            // FSH-8 : TDMA Power
+            // FSH-8 : Distance To Fault Measurement
+            // FSH-8 : Receiver Mode
+
+             // === 리시버 모드 명령어 === //
+            // FSH-8 : Receiver Mode
+
 
 
         }
