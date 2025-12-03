@@ -7,14 +7,37 @@
 const QString model = "FSH-8";
 const QString version = "0.1";
 
+/*
+real time data query sequence is below
+
+1. FORM:DATA REAL,32
+2. INIT:CONT ON
+3. TRAC1:DATA? TRACE1 (repeat)
+
+*/
+// 40 added keyword
+QStringList senseCmds     = {"SENse"}; // hiearachy root command
+QStringList startStopSubCmds = {"STArt","STOP"}; // for frequency at display
+QStringList centerSubCmds = {"CENTer"}; // for frequency at display
+
 // set command without general commands
-QStringList generalSetCmds = { "REMOTE", "LOCAL", "PRESET","INIT" };
-QStringList freqSpanSetCmds = {"FREQ","FREQOFFS","SPAN","AUTOSPAN","CHANNEL","CHTABLE"};
+QStringList generalSetCmds   = { "REMOTE", "LOCAL", "PRESET","INIT" };
+QStringList freqSpanSetCmds  = {"FREQ","FREQOFFS","SPAN","AUTOSPAN","CHANNEL","CHTABLE"};
 QStringList amplitudeSetCmds = {"REFLVL","REFLVLOFFS","RANGE","DYNRANGE","UNIT","RFINPUT","PREAMP" };
-QStringList bandwidthSetCmds = {"AUTORBW","RBW","AUTOVBW","VBW","AUTOCISPRBW","CISPRBW"};
-QStringList sweepSetCmds = {"AUTOSWPTIME","SWPTIME","SWPCONT","TRIGSRC","TRIGLVL","TRIGDEL" };
-QStringList traceSetCmds = {"TRACEMODE","TRACEDET","TRACEMODE","TRACE","TRACEBIN","CTRACE","CTRACEBIN","MTRACE","MTRACEBIN"};
-QStringList markerSetCmds = {"MARK1ON","MARK1","DELTA1ON","DELTA1","MARKPK","MARKNXTPK","MARKMIN","MARKTOCENT","MARKTOLVL","MARKMODE"};
+QStringList bandwidthSetCmds = {"AUTORBW","RBW","AUTOVBW","VBW","AUTOCISPRBW","CISPRBW","BANDwidth"};
+QStringList sweepSetCmds     = {"AUTOSWPTIME","SWPTIME","SWPCONT","TRIGSRC","TRIGLVL","TRIGDEL" };
+QStringList traceSetCmds     = {"TRACEMODE","TRACEDET","TRACEMODE","TRACE","TRACEBIN","CTRACE","CTRACEBIN","MTRACE","MTRACEBIN"};
+QStringList markerSetCmds    = {"MARK1ON","MARK1","DELTA1ON","DELTA1","MARKPK","MARKNXTPK","MARKMIN","MARKTOCENT","MARKTOLVL","MARKMODE"};
+
+// Measure command
+QStringList measureCmds = {"MEAS","TRD1","TRD2","LIMLOW","LIMUPP","LIMPASS","LIMCHKREMOTE","THRLOW","THRUPP","THRPASS","THROFF"};
+QStringList trackingCmds = {};
+QStringList pwrSensorCmds = {};
+QStringList chPowerCmds = {};
+QStringList obCmds = {};
+QStringList tdmaPowerCmds = {};
+QStringList distToFaultMeasureCmds = {};
+QStringList receiverCmds = {};
 
 // Setting SCPI commands table
 // https://selected-mule-probable.ngrok-free.app/mil_prj/adj_ss/-/issues/8
@@ -230,21 +253,53 @@ void MainWindow::read_data_from_socket()
             // FSH-8 : Bandwidth Settings
             // FSH-8 : Sweep Settings
             // FSH-8 : Trace Settings
+            // FSH-8 : Marker Settings
 
                // ==== 측정 명령어 ==== //
             // FSH-8 : Measurement
+            if ( containsAny(data,measureCmds))
+            {
+                sendRetValue();
+            }
+
             // FSH-8 : Tracking Generator
+            if ( containsAny(data,trackingCmds))
+            {
+                sendRetValue();
+            }
+
             // FSH-8 : Power Sensor
+            if ( containsAny(data,pwrSensorCmds))
+            {
+                sendRetValue();
+            }
             // FSH-8 : Channel Power
+            if ( containsAny(data,chPowerCmds))
+            {
+                sendRetValue();
+            }
             // FSH-8 : Occupied Bandwidth
+            if ( containsAny(data,obCmds))
+            {
+                sendRetValue();
+            }
             // FSH-8 : TDMA Power
+            if ( containsAny(data,tdmaPowerCmds))
+            {
+                sendRetValue();
+            }
             // FSH-8 : Distance To Fault Measurement
-            // FSH-8 : Receiver Mode
+            if ( containsAny(data,distToFaultMeasureCmds))
+            {
+                sendRetValue();
+            }
 
              // === 리시버 모드 명령어 === //
             // FSH-8 : Receiver Mode
-
-
+            if ( containsAny(data,receiverCmds))
+            {
+                sendRetValue();
+            }
 
         }
         else {
