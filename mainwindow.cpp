@@ -3,30 +3,37 @@
 #include <QThread>
 #include <QString>
 #include <QDebug>
+
+#define K40
+
 // for VISA(SCPI) IDN? return msg
 const QString model = "FSH-8";
 const QString version = "0.1";
 
+// todo
 /*
 real time data query sequence is below
 
-1. FORM:DATA REAL,32
-2. INIT:CONT ON
-3. TRAC1:DATA? TRACE1 (repeat)
+1. FORM:DATA REAL,32 ( 실수 32 비트 데이터 타입 설정 )
+2. INIT:CONT ON ( 초기화-다시시작 or 처음시작 )
+3. TRAC1:DATA? TRACE1 (반복 명령)
 
+*  measure 명령어 사용안해도 되는지
 */
 // 40 added keyword
+#ifdef K40
 QStringList senseCmds     = {"SENse"}; // hiearachy root command
 QStringList startStopSubCmds = {"STArt","STOP"}; // for frequency at display
 QStringList centerSubCmds = {"CENTer"}; // for frequency at display
-
+QStringList formCmds = {"FORM"}; // formatting data type
+#endif
 // set command without general commands
 QStringList generalSetCmds   = { "REMOTE", "LOCAL", "PRESET","INIT" };
 QStringList freqSpanSetCmds  = {"FREQ","FREQOFFS","SPAN","AUTOSPAN","CHANNEL","CHTABLE"};
 QStringList amplitudeSetCmds = {"REFLVL","REFLVLOFFS","RANGE","DYNRANGE","UNIT","RFINPUT","PREAMP" };
 QStringList bandwidthSetCmds = {"AUTORBW","RBW","AUTOVBW","VBW","AUTOCISPRBW","CISPRBW","BANDwidth"};
 QStringList sweepSetCmds     = {"AUTOSWPTIME","SWPTIME","SWPCONT","TRIGSRC","TRIGLVL","TRIGDEL" };
-QStringList traceSetCmds     = {"TRACEMODE","TRACEDET","TRACEMODE","TRACE","TRACEBIN","CTRACE","CTRACEBIN","MTRACE","MTRACEBIN"};
+QStringList traceSetCmds     = {"TRACEMODE","TRACEDET","TRACEMODE","TRACE","TRACEBIN","CTRACE","CTRACEBIN","MTRACE","MTRACEBIN","TRAC1"};
 QStringList markerSetCmds    = {"MARK1ON","MARK1","DELTA1ON","DELTA1","MARKPK","MARKNXTPK","MARKMIN","MARKTOCENT","MARKTOLVL","MARKMODE"};
 
 // Measure command
@@ -300,7 +307,32 @@ void MainWindow::read_data_from_socket()
             {
                 sendRetValue();
             }
+// K40 base added command option
+/*
+            QStringList senseCmds     = {"SENse"}; // hiearachy root command
+            QStringList startStopSubCmds = {"STArt","STOP"}; // for frequency at display
+            QStringList centerSubCmds = {"CENTer"}; // for frequency at display
+            QStringList formCmds = {"FORM"}; // formatting data type
+*/
+#ifdef K40
+            if ( containsAny(data,senseCmds))
+            {
+                sendRetValue();
+            }
 
+            if ( containsAny(data,startStopSubCmds))
+            {
+                sendRetValue();
+            }
+            if ( containsAny(data,centerSubCmds))
+            {
+                sendRetValue();
+            }
+            if ( containsAny(data,formCmds))
+            {
+                sendRetValue();
+            }
+#endif
         }
         else {
             qDebug("Error : isDeviceBIRD is abnormal status");
@@ -325,6 +357,7 @@ void MainWindow::read_data_from_socket()
 
 void MainWindow::handle_tcp_command(string cmd)
 {
+    qDebug("cmd = %s",cmd.c_str());
     // you can do anything you want in this function based on the given msg
 }
 
